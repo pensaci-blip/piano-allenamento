@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Piano Allenamento Basket</title>
+  
+  <!-- PWA Metadata -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#c2410c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Basket Plan">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/889/889455.png">
+
+  <style>
+    :root{--bg:#f6f5f1;--fg:#1c1b19;--card:#fff;--mut:#6b675f;--bd:#ddd9cf;--ac:#c2410c;--ok:#15803d;--bad:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+    @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171614;--fg:#efede7;--card:#232220;--mut:#a29e94;--bd:#3a3834;--ac:#fb923c;--ok:#4ade80;--bad:#f87171}}
+    :root[data-theme="dark"]{--bg:#171614;--fg:#efede7;--card:#232220;--mut:#a29e94;--bd:#3a3834;--ac:#fb923c;--ok:#4ade80;--bad:#f87171}
+    html{scroll-padding-top:env(safe-area-inset-top,0px)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:720px;margin:0 auto;padding:12px}
+    h1{font-size:19px;margin:4px 0 10px}
+    .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+    label{display:block;font-size:12px;color:var(--mut);margin:0 0 3px}
+    input,textarea,select{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px}
+    textarea{min-height:80px;resize:vertical}
+    .row{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:8px}
+    .bar{height:8px;background:var(--bd);border-radius:5px;overflow:hidden;margin:10px 0 6px}
+    .bar i{display:block;height:100%;background:var(--ok);width:0}
+    .stats{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;font-size:13px;color:var(--mut)}
+    .stats b{color:var(--fg)}
+    .tabs{display:flex;gap:6px;margin-bottom:12px}
+    .tabs button{flex:1}
+    button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;cursor:pointer}
+    button.on,button.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+    button.sm{padding:5px 9px;font-size:13px}
+    .tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .help{font-size:12px;color:var(--mut);margin:6px 0 10px}
+    .court{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--bd)}
+    #ed .court{touch-action:none;cursor:crosshair}
+    .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+    .h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:16px}
+    .h span{color:var(--ac);font-weight:700}
+    .desc{white-space:pre-wrap;margin:8px 0 0}
+    .hid{display:none}
+    .tot{text-align:center;font-size:16px;font-weight:700;padding:6px}
+    .empty{color:var(--mut);text-align:center;padding:16px}
+    #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:20px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:9999}
+    #toast.s{opacity:1}
+    .mini{display:grid;grid-template-columns:1fr;gap:8px}
+    @media(min-width:560px){.mini{grid-template-columns:1fr 1fr}}
+    .fd{margin-bottom:10px}.fd summary{cursor:pointer;font-weight:700;padding:10px 12px;background:var(--card);border:1px solid var(--bd);border-radius:10px}.fd[open] summary{margin-bottom:8px}.fd small{color:var(--mut);font-weight:400}
+    .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.dw{text-align:center;font-size:12px;color:var(--mut)}.dc{position:relative;padding:9px 0;text-align:center}.dc.sel{border-color:var(--ac);font-weight:700}.dc.has{background:rgba(194,65,12,.14);border-color:var(--ac)}.dc i{position:absolute;bottom:3px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--ac)}
+    @media print{main>div.card:first-of-type,h1,.tabs,#t-ed,#t-arc,#t-cal,.btns,#toast{display:none!important}#t-plan{display:block!important}body{background:#fff;color:#000}.card{background:#fff;color:#000;break-inside:avoid;border-color:#999}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>🏀 Piano di allenamento</h1>
+  <div class="card">
+   <div class="row">
+    <div><label>Giorno</label><input type="date" id="day"></div>
+    <div><label>Categoria</label><input id="cat" placeholder="es. U16, Minibasket 2017"></div>
+    <div><label>Durata (min)</label><input type="number" id="tot" min="0" step="5"></div>
+   </div>
+   <div class="row" style="margin-top:8px">
+    <div><label>Inizio</label><input type="time" id="ti"></div>
+    <div><label>Fine</label><input type="time" id="tf"></div>
+   </div>
+   <div class="bar"><i id="pb"></i></div>
+   <div class="stats"><span>Usati: <b id="used">0</b> min</span><span id="rem"></span></div>
+   <div class="help" id="hh" style="margin:6px 0 0"></div>
+  </div>
+
+  <div class="tabs">
+    <button data-tab="ed" class="on">Editor</button>
+    <button data-tab="plan">Piano</button>
+    <button data-tab="arc">Archivio</button>
+    <button data-tab="cal">Calendario</button>
+  </div>
+
+  <section id="t-ed">
+   <div class="tabs" id="md">
+    <button data-mode="ed" class="on">✏️ Esercizio</button>
+    <button data-mode="fg">🧪 Foglio di prova</button>
+   </div>
+   <div class="card">
+    <div class="tools" id="tools">
+     <button data-tool="att" class="on">🔴 Attaccante</button>
+     <button data-tool="dif">🔵 Difensore</button>
+     <button data-tool="attb">🔵 Attaccante blu</button>
+     <button data-tool="difr">🔴 Difensore rosso</button>
+     <button data-tool="ball">🏀 Pallone</button>
+     <button data-tool="rot">↻ Ruota</button>
+     <button data-tool="mov">→ Movimento</button>
+     <button data-tool="pas">⇢ Passaggio</button>
+     <button data-tool="pal">∿ Palleggio</button>
+     <button data-tool="blo">⊥ Blocco</button>
+     <button data-tool="tag">↪ Taglio</button>
+     <button data-tool="tir">🎯 Tiro</button>
+     <button data-tool="co">Ⓒ Appoggio</button>
+     <button data-tool="as">Ⓐ Appoggio</button>
+     <button data-tool="bi">🔺 Birillo</button>
+     <button data-tool="ci">🟡 Cinesino</button>
+     <button data-tool="cb">🥅 Canestro laterale</button>
+     <button data-tool="txt">✍ Testo</button>
+     <button id="und">↶ Annulla</button>
+     <button data-tool="del">🗑 Elimina</button>
+     <button id="clr">Svuota</button>
+    </div>
+    <div class="tools" id="ph"></div>
+    <div id="txr" class="hid" style="margin:8px 0">
+      <input id="txi" maxlength="40" placeholder="Scrivi il testo, poi tocca il campo dove metterlo" autocomplete="off">
+    </div>
+    <div id="ed"></div>
+    <div class="help">Tocca il campo per aggiungere un giocatore, trascinalo per spostarlo. Frecce: scegli il tipo e trascina sul campo. Con ➕ Aggiungi fase puoi creare l'evoluzione dell'esercizio (fino a 10 fasi).</div>
+    
+    <div id="exf">
+      <label>Nome esercizio</label><input id="nm" placeholder="es. 3 contro 2 in transizione">
+      <label style="margin-top:8px">Categoria esercizio (cartella dell'archivio)</label>
+      <input id="xc" list="cats" placeholder="es. 1c1" autocomplete="off">
+      <datalist id="cats">
+        <option value="Riscaldamento"><option value="Fondamentali"><option value="Palleggio">
+        <option value="Passaggio"><option value="Tiro"><option value="1c1"><option value="2c2">
+        <option value="3c3"><option value="5c5"><option value="Difesa"><option value="Contropiede">
+        <option value="Blocchi e pick&roll"><option value="Taglio e smarcamento"><option value="Partita">
+      </datalist>
+      <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px">
+       <div><label>Durata (min)</label><input type="number" id="du" min="0" step="1"><div class="help" id="pv" style="margin:4px 0 0"></div></div>
+       <div><label>Descrizione / spiegazione</label><textarea id="ds" placeholder="Come si svolge, varianti, punti chiave..."></textarea></div>
+      </div>
+      <div class="btns">
+        <button class="pri" id="ok">Conferma esercizio</button>
+        <button id="ob">✅ Piano + archivio</button>
+        <button id="sa">⭐ Salva in archivio</button>
+        <button id="nw">Nuovo</button>
+      </div>
+    </div>
+
+    <div id="fgp" class="hid">
+     <div class="help"><b>Foglio di prova</b>: disegna liberamente. Non è collegato al calendario né al piano finché non lo salvi.</div>
+     <label>Nome (facoltativo)</label><input id="fn" placeholder="es. Schema 5c5 in uscita">
+     <label style="margin-top:8px">Descrizione / spiegazione</label><textarea id="fx" placeholder="Come si svolge, le diverse conclusioni, punti chiave..."></textarea>
+     <label style="margin-top:8px">Categoria (cartella dell'archivio)</label><input id="fc" list="cats" placeholder="es. 5c5" autocomplete="off">
+     <label style="margin-top:8px">Durata in minuti (facoltativa)</label><input type="number" id="fm" min="0">
+     <label style="margin-top:8px">Giorno del piano (vuoto = piano in lavorazione)</label><input type="date" id="fd">
+     <div class="btns">
+       <button class="pri" id="fb">⭐📅 Archivio e piano</button>
+       <button id="fa">⭐ Solo archivio</button>
+       <button id="fp">📅 Solo piano</button>
+       <button id="fcl">Svuota foglio</button>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  <section id="t-plan" class="hid">
+    <div id="pl"></div>
+    <div class="btns">
+      <button class="pri" id="sd">📅 Salva nel giorno</button>
+      <button id="pr">🖨 Stampa</button>
+      <button id="rs">Nuovo giorno (svuota piano)</button>
+    </div>
+  </section>
+
+  <section id="t-arc" class="hid">
+    <div class="btns" style="margin:0 0 10px">
+      <button id="ex">⬇ Esporta archivio e calendario</button>
+      <button id="im">⬆ Importa archivio e calendario</button>
+      <button id="exs" class="hid">⬇ Esporta selezionati (0)</button>
+      <button id="exn" class="hid">✖ Deseleziona</button>
+      <input type="file" id="fi" accept=".json,application/json" class="hid">
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <label>Cosa inviare con Esporta</label>
+      <select id="xm">
+        <option value="all">Tutto l'archivio e il calendario</option>
+        <option value="since">Solo quello salvato da una data in poi</option>
+      </select>
+      <input type="date" id="xd" class="hid" style="margin-top:8px">
+      <div class="help" id="xh" style="margin:6px 0 0"></div>
+    </div>
+    <div id="ic"></div>
+    <div id="ar"></div>
+  </section>
+
+  <section id="t-cal" class="hid">
+    <div id="cl"></div>
+  </section>
+
+  <div id="toast"></div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+      });
+    }
+
+    const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,9);
+    const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    let S={meta:{day:'',cat:'',total:90},plan:[],archive:[]},cur=[],tool='att',editIdx=null,drag=null,rsArm=0;
+    const copy=o=>JSON.parse(JSON.stringify(o));
+    
+    function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1800)}
+    function save(){S.upd=Date.now();try{localStorage.setItem('bkplan',JSON.stringify(S))}catch(e){}}
+    function load(){
+      try{const j=localStorage.getItem('bkplan');if(j){S=JSON.parse(j)}}catch(e){}
+      init();
+    }
+
+    const COURT=`<rect width="500" height="480" fill="#f1dfb8"/><g fill="none" stroke="#8a6a3a" stroke-width="2.5"><rect x="3" y="20" width="494" height="457"/><rect x="170" y="20" width="160" height="190"/><circle cx="250" cy="210" r="60"/><path d="M30 20V161.5A237.5 237.5 0 0 0 470 161.5V20"/><path d="M210 72A40 40 0 0 0 290 72"/><path d="M190 477A60 60 0 0 1 310 477"/><path d="M220 58H280"/><circle cx="250" cy="70" r="8" stroke="#c2410c"/></g>`;
+    
+    function svg(P,ed){
+      const n={a:0,d:0};
+      return `<svg viewBox="0 0 500 ${isFull(P)?954:480}" class="court"${ed?' id="ct"':''}>${COURT}${isFull(P)?`<g transform="translate(0 954) scale(1 -1)">${COURT}</g>`:''}${P.filter(p=>p.t=='l').map(arrow).join('')}${P.filter(p=>p.t!='l'&&p.t!='k').map(p=>{
+        if(p.t=='tx'){const w=Math.max(30,(p.tx||'').length*9.5+10);return `<g data-id="${p.id}" transform="translate(${p.x} ${p.y})"><rect x="${-w/2}" y="-15" width="${w}" height="24" fill="transparent"/><text text-anchor="middle" y="5" font-size="16" font-weight="700" fill="#111" stroke="#f1dfb8" stroke-width="4" paint-order="stroke" stroke-linejoin="round" pointer-events="none">${esc(p.tx)}</text></g>`}
+        if(EQ[p.t])return `<g data-id="${p.id}" transform="translate(${p.x} ${p.y})">${p.t=='cb'?`<g transform="rotate(${p.r||0})">${EQ.cb}</g>`:EQ[p.t]}</g>`;
+        n[p.t]++;
+        return `<g data-id="${p.id}" transform="translate(${p.x} ${p.y})">${p.t=='d'?`<g transform="rotate(${p.r||0})"><path d="M-19 -9A21 21 0 0 1 19 -9" fill="none" stroke="${p.c=='r'?'#b91c1c':'#1d4ed8'}" stroke-width="4" stroke-linecap="round"/></g><circle r="13" fill="${p.c=='r'?'#dc2626':'#2563eb'}"/>`:p.t=='a'?`<circle r="14" fill="${p.c=='b'?'#2563eb':'#dc2626'}"/>`:`<circle r="14" fill="#fff" stroke="#111" stroke-width="3"/>`}<text y="5" text-anchor="middle" font-size="14" font-weight="700" fill="${p.t=='a'||p.t=='d'?'#fff':'#111'}" pointer-events="none">${{a:n.a,d:n.d,c:'C',s:'A'}[p.t]}</text>${p.b?BALL(p.ba??.43,1):''}${p.b2?BALL(p.ba2??((p.ba??.43)+Math.PI),2):''}</g>`
+      }).join('')}</svg>`;
+    }
+
+    const LT=['mov','pas','pal','blo','tag','tir'],PT={att:'a',dif:'d',attb:'a',difr:'d',co:'c',as:'s',bi:'bi',ci:'ci',cb:'cb'},CL={attb:'b',difr:'r'},
+    EQ={cb:`<circle r="24" fill="transparent"/><path d="M-18 -12H18" stroke="#1f2937" stroke-width="5" stroke-linecap="round"/><path d="M0 -12V-8" stroke="#1f2937" stroke-width="3"/><circle r="8" fill="#fff7ed" stroke="#c2410c" stroke-width="3"/>`,bi:`<circle r="15" fill="transparent"/><path d="M0-13L11 10H-11Z" fill="#f97316" stroke="#7c2d12" stroke-width="2" stroke-linejoin="round"/><path d="M-5 0H5" stroke="#fff" stroke-width="3"/>`,ci:`<circle r="15" fill="transparent"/><circle r="7" fill="#facc15" stroke="#a16207" stroke-width="2"/><circle r="2.5" fill="#a16207"/>`};
+
+    function arrow(a){
+      const dx=a.x2-a.x1,dy=a.y2-a.y1,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,nx=-uy,ny=ux;let d,ang=Math.atan2(dy,dx),dash='',h;
+      if(a.k=='tag'&&a.pts){const P=a.pts.slice(),l=P[P.length-1];if(Math.hypot(l[0]-a.x2,l[1]-a.y2)>1)P.push([a.x2,a.y2]);d='M'+P[0][0]+' '+P[0][1];for(let i=1;i<P.length-1;i++)d+=`Q${P[i][0]} ${P[i][1]} ${(P[i][0]+P[i+1][0])/2} ${(P[i][1]+P[i+1][1])/2}`;d+=`L${a.x2} ${a.y2}`;const q=P[Math.max(0,P.length-3)];ang=Math.atan2(a.y2-q[1],a.x2-q[0])}
+      else if(a.k=='tag'){const c1x=a.x1+dx*.3+nx*L*.3,c1y=a.y1+dy*.3+ny*L*.3,c2x=a.x1+dx*.7-nx*L*.3,c2y=a.y1+dy*.7-ny*L*.3;d=`M${a.x1} ${a.y1}C${c1x} ${c1y} ${c2x} ${c2y} ${a.x2} ${a.y2}`;ang=Math.atan2(a.y2-c2y,a.x2-c2x)}
+      else if(a.k=='pal'&&a.pts){const P=a.pts.slice(),l=P[P.length-1];if(Math.hypot(l[0]-a.x2,l[1]-a.y2)>1)P.push([a.x2,a.y2]);const M=(u,v)=>[(u[0]+v[0])/2,(u[1]+v[1])/2],C=[P[0]];let s0=P[0];for(let i=1;i<P.length-1;i++){const c=P[i],e2=M(P[i],P[i+1]),m=Math.max(2,Math.ceil((Math.hypot(c[0]-s0[0],c[1]-s0[1])+Math.hypot(e2[0]-c[0],e2[1]-c[1]))/4));for(let k=1;k<=m;k++){const t=k/m,u=1-t;C.push([u*u*s0[0]+2*u*t*c[0]+t*t*e2[0],u*u*s0[1]+2*u*t*c[1]+t*t*e2[1]])}s0=e2}C.push(P[P.length-1]);const sg=[0];for(let i=1;i<C.length;i++)sg.push(sg[i-1]+Math.hypot(C[i][0]-C[i-1][0],C[i][1]-C[i-1][1]));const T=sg[sg.length-1],e=Math.max(0,T-12),pts=[];let j=1;for(let s=0;s<=e;s+=3){while(j<C.length-1&&sg[j]<s)j++;const f=(s-sg[j-1])/((sg[j]-sg[j-1])||1),px=C[j-1][0]+(C[j][0]-C[j-1][0])*f,py=C[j-1][1]+(C[j][1]-C[j-1][1])*f,tx=C[j][0]-C[j-1][0],ty=C[j][1]-C[j-1][1],tl=Math.hypot(tx,ty)||1,o=Math.sin(s/16*6.283)*5;pts.push((px-ty/tl*o).toFixed(1)+' '+(py+tx/tl*o).toFixed(1))}d='M'+(pts.length?pts.join('L'):C[0][0]+' '+C[0][1]);const q=C[Math.max(0,C.length-3)];ang=Math.atan2(a.y2-q[1],a.x2-q[0])} else if(a.k=='pal'){const e=Math.max(0,L-12),pts=[];for(let s=0;s<=e;s+=3){const o=Math.sin(s/16*6.283)*5;pts.push((a.x1+ux*s+nx*o).toFixed(1)+' '+(a.y1+uy*s+ny*o).toFixed(1))}d='M'+pts.join('L')}
+      else d=`M${a.x1} ${a.y1}L${a.x2} ${a.y2}`;
+      if(a.k=='pas')dash=' stroke-dasharray="9 6"';
+      if(a.k=='blo'){const bx=Math.cos(ang+1.5708)*13,by=Math.sin(ang+1.5708)*13;h=`<path d="M${a.x2-bx} ${a.y2-by}L${a.x2+bx} ${a.y2+by}" stroke-width="5"/>`}
+      else{const t=r=>`${a.x2-15*Math.cos(ang+r)} ${a.y2-15*Math.sin(ang+r)}`;h=`<path d="M${t(.45)}L${a.x2} ${a.y2}L${t(-.45)}"/>`}
+      return `<g data-id="${a.id}" fill="none" stroke="#1f2937" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"${dash}${a.k=='tir'?' stroke-width="8" stroke-linecap="butt"':''}/>${a.k=='tir'?`<path d="${d}" stroke="#f1dfb8" stroke-width="3" stroke-linecap="butt"/>`:''}${h}<path d="${d}" stroke="transparent" stroke-width="20"/></g>`;
+    }
+
+    function cbR(q){const H=isFull(cur)?954:480;return [[q.x,270],[500-q.x,90],[q.y-20,0],[H-q.y,180]].sort((a,b)=>a[0]-b[0])[0][1]}
+    function pt(e){const s=$('#ct'),p=new DOMPoint(e.clientX,e.clientY).matrixTransform(s.getScreenCTM().inverse());return{x:Math.max(16,Math.min(484,p.x)),y:Math.max(24,Math.min(isFull(cur)?938:464,p.y))}}
+    
+    function drawEd(){
+      FS[fi]=cur;$('#ph').innerHTML=phHTML();$('#ed').innerHTML=svg(cur,1);const s=$('#ct');
+      s.onpointerdown=e=>{
+        const g=e.target.closest('[data-id]'),q=pt(e);
+        if(LT.includes(tool)){drag={a:{id:uid(),t:'l',k:tool,x1:q.x,y1:q.y,x2:q.x,y2:q.y}};s.setPointerCapture(e.pointerId);return}
+        const bl=e.target.closest('[data-ball]');if(bl){const p=cur.find(x=>x.id==g.dataset.id);const k=bl.dataset.ball;if(tool=='del'||tool=='ball'){if(k=='2'){p.b2=false}else if(p.b2){p.b2=false;p.ba=p.ba2??((p.ba??.43)+Math.PI)}else p.b=false;return drawEd()}drag={p,ball:k,g:bl};s.setPointerCapture(e.pointerId);return}
+        if(g){const p=cur.find(x=>x.id==g.dataset.id);if(p.t=='l'&&tool!='del')return;
+         if(tool=='del'){cur=cur.filter(x=>x!=p);return drawEd()}
+         if(tool=='ball'){const an=Math.atan2(q.y-p.y,q.x-p.x),b1=p.ba??.43;if(!p.b){p.b=true;p.ba=an}else if(!p.b2){p.b2=true;p.ba2=Math.abs(Math.atan2(Math.sin(an-b1),Math.cos(an-b1)))<.7?b1+Math.PI:an}else{p.b=false;p.b2=false}return drawEd()}
+         if(tool=='rot'){if(p.t=='d'||p.t=='cb')p.r=((p.r||0)+45)%360;return drawEd()}
+         drag={p,g,tx:tool=='txt'&&p.t=='tx',x0:q.x,y0:q.y};s.setPointerCapture(e.pointerId)}
+        else if(tool=='txt'){const v=$('#txi').value.trim();if(!v){toast('Scrivi prima il testo qui sopra');$('#txi').focus();return}cur.push({id:uid(),t:'tx',tx:v.slice(0,40),x:q.x,y:q.y});$('#txi').value='';drawEd()}
+        else if(PT[tool]){cur.push({id:uid(),t:PT[tool],c:CL[tool],x:q.x,y:q.y,r:tool=='cb'?cbR(q):0,b:false});drawEd()}
+      };
+      s.onpointermove=e=>{
+        if(!drag)return;const q=pt(e);if(drag.tx&&!drag.moved){if(Math.hypot(q.x-drag.x0,q.y-drag.y0)<6)return;drag.moved=true}
+        if(drag.ball){const t=Math.atan2(q.y-drag.p.y,q.x-drag.p.x);drag.p[drag.ball=='2'?'ba2':'ba']=t;drag.g.setAttribute('transform',`translate(${(24*Math.cos(t)).toFixed(1)} ${(24*Math.sin(t)).toFixed(1)})`);return}
+        if(drag.a){drag.a.x2=q.x;drag.a.y2=q.y;if(drag.a.k=='tag'||drag.a.k=='pal'){const P=drag.a.pts||(drag.a.pts=[[drag.a.x1,drag.a.y1]]),l=P[P.length-1];if(Math.hypot(q.x-l[0],q.y-l[1])>(drag.a.k=='pal'?7:10))P.push([q.x,q.y])}let v=s.querySelector('#pv');if(!v){v=document.createElementNS('http://www.w3.org/2000/svg','g');v.id='pv';s.appendChild(v)}v.innerHTML=arrow(drag.a);return}
+        drag.p.x=q.x;drag.p.y=q.y;drag.g.setAttribute('transform',`translate(${q.x} ${q.y})`);
+      };
+      s.onpointerup=s.onpointercancel=e=>{
+        const a=drag&&drag.a,t=drag&&drag.tx&&!drag.moved&&e.type=='pointerup'?drag.p:null;drag=null;
+        if(t){cur=cur.filter(x=>x!=t);$('#txi').value=t.tx;$('#txi').focus();toast('Modifica il testo e tocca il campo per rimetterlo');drawEd();return}
+        if(a){if(Math.hypot(a.x2-a.x1,a.y2-a.y1)>20||(a.pts&&a.pts.length>5))cur.push(a);drawEd()}
+      };
+    }
+
+    const sum=()=>S.plan.reduce((a,x)=>a+(+x.dur||0),0);
+    function stats(){
+      const t=+S.meta.total||0,u=sum(),r=t-u;$('#used').textContent=u;hhUI(u);
+      $('#pb').style.width=Math.min(100,t?u/t*100:0)+'%';$('#pb').style.background=r<0?'var(--bad)':'var(--ok)';
+      const e=$('#rem');e.innerHTML=r<0?`Superati di <b style="color:var(--bad)">${-r}</b> min`:`Rimangono <b style="color:var(--ok)">${r}</b> min su ${t}`;
+      const old=editIdx!=null?(+S.plan[editIdx].dur||0):0,d=+$('#du').value||0,after=t-u+old-d;
+      $('#pv').textContent=(S.meta.start&&d?'Orario '+sr(editIdx,d)+' · ':'')+(d?(after<0?`Con questo esercizio superi di ${-after} min`:`Dopo questo esercizio: ${after} min rimasti`):`Tempo ancora disponibile: ${Math.max(0,r+old)} min`);
+    }
+
+    function planHTML(){
+      const m=S.meta;let d='';
+      if(m.day){try{d=new Date(m.day+'T12:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch(e){d=m.day}}
+      let h=`<div class="card"><div class="h"><b>${esc(d)||'Giorno non indicato'}</b><span>${esc(m.cat)}</span></div><div class="stats"><span>Durata prevista: <b>${m.total||0}</b> min${hr()}</span><span>Esercizi: <b>${S.plan.length}</b></span></div></div>`;
+      if(!S.plan.length)return h+'<div class="empty">Nessun esercizio nel piano. Creane uno nell\'editor o aggiungilo dall\'archivio.</div>';
+      h+=S.plan.map((x,i)=>`<div class="card"><div class="h"><b>${i+1}. ${esc(x.name)}</b><span>${tm(i)}${x.dur} min</span></div>${svgs(x)}<p class="desc">${esc(x.desc)}</p><div class="btns"><button class="sm" data-a="edit" data-i="${i}">✏️ Modifica</button><button class="sm" data-a="up" data-i="${i}">↑</button><button class="sm" data-a="dn" data-i="${i}">↓</button><button class="sm" data-a="arc" data-i="${i}">⭐ Salva in archivio</button><button class="sm" data-a="rm" data-i="${i}">🗑</button></div></div>`).join('');
+      return h+`<div class="card tot">Totale: ${sum()} min su ${m.total||0}</div>`;
+    }
+
+    function arcHTML(){
+      if(!S.archive.length)return '<div class="empty">Archivio vuoto. Usa "Salva in archivio" per conservare gli esercizi che ripeti.</div>';
+      const G={};S.archive.forEach((x,i)=>{const k=x.cat||'Senza categoria';(G[k]=G[k]||[]).push([x,i])});
+      const card=(x,i)=>`<div class="card" style="margin:0"><div class="h"><b>${esc(x.name)}</b><span>${x.dur} min</span></div>${svgs(x)}<p class="desc">${esc(x.desc)}</p><div class="btns"><label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" data-sel="${x.id}"${SEL.has(x.id)?' checked':''} style="width:auto"> Seleziona</label><button class="sm pri" data-a="aadd" data-i="${i}">+ Al piano</button><button class="sm" data-a="aload" data-i="${i}">Apri nell'editor</button><button class="sm" data-a="adel" data-i="${i}">🗑</button></div></div>`;
+      return Object.keys(G).sort((a,b)=>a=='Senza categoria'?1:b=='Senza categoria'?-1:a.localeCompare(b,'it',{numeric:true})).map(k=>`<details class="fd" data-f="${esc(k)}"${OF[k]?' open':''}><summary>📁 ${esc(k)} <small>(${G[k].length})</small></summary><div class="btns" style="margin:0 0 8px"><button class="sm" data-a="fexp" data-f="${esc(k)}">⬇ Esporta cartella</button><button class="sm" data-a="fsel" data-f="${esc(k)}">☑ Seleziona tutta</button></div><div class="mini">${G[k].map(([x,i])=>card(x,i)).join('')}</div></details>`).join('');
+    }
+
+    function exportArc(){
+      const F=xf(),AR=F?S.archive.filter(x=>x.ts>=F.t):S.archive,dk=Object.keys(S.days||{}).filter(k=>!F||k>=F.d);if(!AR.length&&!dk.length)return toast(F?'Niente di salvato da quella data':'Niente da esportare');
+      const dys={};dk.forEach(k=>{dys[k]=S.days[k]});
+      const data=JSON.stringify({tipo:'archivio-basket',v:2,archive:AR,days:dys},null,1),fn=F?`basket-dal-${F.d}.json`:'basket-archivio-calendario.json';
+      const u=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('Archivio esportato');
+    }
+
+    $('#fi').onchange=async e=>{
+      const f=e.target.files[0];e.target.value='';if(!f)return;
+      try{
+        const j=JSON.parse(await f.text()),A=Array.isArray(j)?j:(Array.isArray(j.archive)?j.archive:[]);if(!Array.isArray(j)&&!j.archive&&!j.days)throw 0;
+        const key=x=>(x.cat||'').toLowerCase()+'|'+(x.name||'').toLowerCase(),have=new Set(S.archive.map(key));let n=0;
+        A.forEach(x=>{if(x&&x.name&&Array.isArray(x.players)&&!have.has(key(x))){S.archive.push({...x,id:uid(),ts:Date.now()});have.add(key(x));n++}});
+        let nd=0;PC={};S.days=S.days||{};const D=(!Array.isArray(j)&&j.days)||{};
+        Object.keys(D).forEach(k=>{const d=D[k];if(!d||!Array.isArray(d.plan))return;const Li=[{cat:d.cat,total:d.total,start:d.start,end:d.end,plan:d.plan},...(d.more||[])].filter(p=>p&&Array.isArray(p.plan));
+         if(!S.days[k]){sdp(k,Li);nd++;return}const have2=dp(k).map(p=>JSON.stringify(p.plan)),nw=Li.filter(p=>!have2.includes(JSON.stringify(p.plan)));if(nw.length)PC[k]=nw});
+        save();render();toast((n||nd)?`Importati ${n} esercizi e ${nd} giorni`:'Nessuna novità da importare');
+      }catch(err){toast('File non valido')}
+    };
+
+    const OF={};document.addEventListener('toggle',e=>{const f=e.target.dataset&&e.target.dataset.f;if(f!==undefined)OF[f]=e.target.open},true);
+
+    function printDoc(){
+      if(!S.plan.length)return toast('Il piano è vuoto');const m=S.meta;let d=m.day||'';try{if(d)d=new Date(d+'T12:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch(e){}
+      const n=S.plan.length,cols=n<=2?1:n<=6?2:3,rows=Math.max(1,Math.ceil(n/cols)),phs=x=>{const A=[x.players,...(x.more||[])];return A.map((p,i)=>`<div class="ph">${A.length>1?`<small>Fase ${i+1}${isFull(p)?' · campo intero':''}</small>`:''}${svg(p)}</div>`).join('')};
+      const body=S.plan.map((x,i)=>`<section class="ex"><h2><span>${i+1}. ${esc(x.name)}</span><span>${tm(i)}${x.dur} min</span></h2><div class="g${(c=>c>6?' w4':c>3?' w3':'')(1+(x.more||[]).length)}">${phs(x)}</div><div class="d">${esc(x.desc)}</div></section>`).join('');
+      const html=`<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Piano allenamento</title><style>@page{size:A4;margin:8mm}*{box-sizing:border-box}html,body{margin:0;background:#fff;color:#000;font-family:system-ui,sans-serif}body{width:194mm;height:281mm;margin:0 auto;display:flex;flex-direction:column}header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #000;padding-bottom:1.5mm;margin-bottom:2mm}h1{font-size:15px;margin:0}header div{font-size:10px}main{flex:1;min-height:0;display:grid;gap:2mm}.ex{border:1px solid #999;border-radius:2mm;padding:1.5mm;display:flex;flex-direction:column;min-height:0;overflow:hidden}h2{font-size:11px;margin:0 0 1mm;display:flex;justify-content:space-between}.g{display:flex;gap:1.5mm;flex:0 0 55%;min-height:0}.g.w3,.g.w4{flex-wrap:wrap;overflow:hidden}.g.w3 .ph{flex:0 0 calc(33.3% - 1mm);height:calc(50% - .8mm)}.g.w4 .ph{flex:0 0 calc(25% - 1.2mm);height:calc(33.3% - 1mm)}.ph{flex:1;min-width:0;display:flex;flex-direction:column}.ph small{font-size:8px}.ph svg{flex:1;min-height:0;width:100%;border:1px solid #999}.d{flex:1;min-height:0;overflow:hidden;white-space:pre-wrap;font-size:11px;line-height:1.25;margin-top:1mm}.np{position:fixed;right:6px;top:6px}@media print{.np{display:none}}</style></head><body><header><h1>${esc(d)}${m.cat?' · '+esc(m.cat):''}</h1><div>${m.start?'Orario '+m.start+(m.end?'–'+m.end:'')+' · ':''}Durata prevista ${m.total||0} min · esercizi ${sum()} min · <b>Totale ${sum()} min</b></div></header><main style="grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rows},minmax(0,1fr))">${body}</main><button class="np" onclick="print()">Stampa</button><script>document.querySelectorAll('.d').forEach(p=>{let f=11;while(p.scrollHeight>p.clientHeight+1&&f>5){f-=.5;p.style.fontSize=f+'px'}})<\/script></body></html>`;
+      const fr=document.createElement('iframe');fr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';fr.srcdoc=html;fr.onload=()=>{try{fr.contentWindow.focus();fr.contentWindow.print()}catch(e){}setTimeout(()=>fr.remove(),60000)};document.body.appendChild(fr);
+    }
+
+    let cm=null,CS=null;
+    function calHTML(){
+      S.days=S.days||{};const td=new Date().toISOString().slice(0,10);CS=CS||S.meta.day||td;cm=cm||CS.slice(0,7);
+      const [y,m]=cm.split('-').map(Number),f=new Date(y,m-1,1),off0=(f.getDay()+6)%7,n=new Date(y,m,0).getDate(),nm=f.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+      let g=['L','M','M','G','V','S','D'].map(d=>`<div class="dw">${d}</div>`).join('');for(let i=0;i<off0;i++)g+='<div></div>';
+      for(let d=1;d<=n;d++){const k=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,c=dp(k).length;g+=`<button class="dc${k==CS?' sel':''}${c?' has':''}" data-a="cday" data-k="${k}">${d}${c?'<i></i>':''}</button>`}
+      const L=dp(CS),tot=p=>p.plan.reduce((a,x)=>a+(+x.dur||0),0);
+      const det=L.map((p,j)=>{const s0=tmn(p.start);let o=0;return `<div class="card"><div class="h"><b>${L.length>1?'Piano '+(j+1):'Piano del giorno'}${p.cat?' · '+esc(p.cat):''}</b><span>${p.plan.length} esercizi · ${tot(p)} min</span></div>${p.start?`<div class="help" style="margin:0 0 6px">Orario ${esc(p.start)}${p.end?'–'+esc(p.end):''}</div>`:''}<div style="font-size:14px">${p.plan.map((x,i)=>{const t=s0!=null?fmt(s0+o)+'–'+fmt(s0+o+(+x.dur||0))+' · ':'';o+=(+x.dur||0);return `<div>${i+1}. ${t}${esc(x.name)} <span style="color:var(--mut)">(${x.dur} min)</span></div>`}).join('')}</div><div class="btns"><button class="sm pri" data-a="copen" data-j="${j}">Apri piano</button><button class="sm" data-a="crm" data-j="${j}">🗑 Rimuovi piano</button></div></div>`}).join('');
+      const empty=!L.length?`<div class="card"><div class="h"><b>${CS.split('-').reverse().join('/')}</b></div><div class="help">Nessun piano salvato in questo giorno.</div><div class="btns"><button class="sm" data-a="cset">Usa questo giorno per un nuovo piano</button></div></div>`:'';
+      return `<div class="card"><div class="h"><button class="sm" data-a="cprev">‹</button><b style="text-transform:capitalize">${nm}</b><button class="sm" data-a="cnext">›</button></div><div class="cal">${g}</div><div class="help">I giorni con il puntino hanno un piano salvato. Giorni salvati: ${Object.keys(S.days).length}.</div></div>`+empty+det;
+    }
+
+    function render(){stats();$('#cl').innerHTML=calHTML();$('#ic').innerHTML=confHTML();selUI();xUI();$('#pl').innerHTML=planHTML();$('#ar').innerHTML=arcHTML();$('#ok').textContent=editIdx!=null?'Aggiorna esercizio':'Conferma esercizio';$('#rs').textContent='Nuovo giorno (svuota piano)';rsArm=0}
+    function init(){$('#day').value=S.meta.day||'';$('#cat').value=S.meta.cat||'';$('#tot').value=S.meta.total;$('#ti').value=S.meta.start||'';$('#tf').value=S.meta.end||'';drawEd();render()}
+    function tab(t){document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab==t));['ed','plan','arc','cal'].forEach(k=>$('#t-'+k).classList.toggle('hid',k!=t));if(t=='plan'||t=='cal')render()}
+    function ex(){return{id:uid(),ts:Date.now(),cat:$('#xc').value.trim(),name:$('#nm').value.trim(),dur:+$('#du').value||0,desc:$('#ds').value.trim(),players:copy(PH()[0]),more:PH().slice(1).map(p=>copy(p))}}
+    function reset(){cur=[];FS=[cur];fi=0;editIdx=null;$('#nm').value=$('#du').value=$('#ds').value=$('#xc').value='';drawEd();render()}
+    function loadEd(x,i){if(MODE!='ed')setMode('ed');FS=[copy(x.players),...copy(x.more||[])];fi=0;cur=FS[0];editIdx=i;$('#nm').value=x.name;$('#xc').value=x.cat||'';$('#du').value=x.dur;$('#ds').value=x.desc;drawEd();render();tab('ed');scrollTo(0,0)}
+    
+    document.addEventListener('click',e=>{
+      const b=e.target.closest('button');if(!b)return;
+      if(b.dataset.tab)return tab(b.dataset.tab);
+      if(b.dataset.tool){tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(x=>x.classList.toggle('on',x==b));$('#txr').classList.toggle('hid',tool!='txt');if(tool=='txt')$('#txi').focus();return}
+      const i=+b.dataset.i,a=b.dataset.a;
+      if(b.dataset.mode){setMode(b.dataset.mode);return}
+      if(b.id=='ob'){if(!$('#nm').value.trim())return toast("Inserisci il nome dell'esercizio");$('#sa').click();$('#ok').click();return}
+      if(b.id=='fcl'){cur=[];FS=[cur];fi=0;$('#fn').value=$('#fx').value=$('#fm').value=$('#fc').value='';drawEd();return}
+      if(b.id=='fa'||b.id=='fp'||b.id=='fb'){if(!FS.some(filled))return toast('Il foglio è vuoto');const x=fgEx();if(b.id=='fb'){const xa=copy(x);xa.id=uid();const k0=S.archive.findIndex(y=>y.name.toLowerCase()==xa.name.toLowerCase());if(k0>=0)S.archive[k0]=xa;else S.archive.push(xa)}
+       if(b.id=='fa'){const k=S.archive.findIndex(y=>y.name.toLowerCase()==x.name.toLowerCase());if(k>=0)S.archive[k]=x;else S.archive.push(x);save();render();return toast('Salvato in archivio'+(x.cat?' · cartella '+x.cat:''))}
+       const day=$('#fd').value;if(!day||day==S.meta.day){S.plan.push(x);save();render();return toast('Aggiunto al piano in lavorazione: poi usa Salva nel giorno')}
+       const L=dp(day);if(L.length)L[0].plan.push(x);else L.push({cat:'',total:S.meta.total,plan:[x]});sdp(day,L);save();render();return toast('Aggiunto al piano del '+day.split('-').reverse().join('/'))}
+      if(b.dataset.ph!==undefined){fi=+b.dataset.ph;cur=FS[fi];return drawEd()}
+      if(b.id=='pha'){if(FS.length<10){FS.push(cur.filter(p=>p.t!='l'&&p.t!='tx').map(p=>({...p,id:uid()})));fi=FS.length-1;cur=FS[fi];drawEd()}return}
+      if(b.id=='phl'&&fi>0){[FS[fi-1],FS[fi]]=[FS[fi],FS[fi-1]];fi--;cur=FS[fi];drawEd();return}
+      if(b.id=='phr'&&fi<FS.length-1){[FS[fi+1],FS[fi]]=[FS[fi],FS[fi+1]];fi++;cur=FS[fi];drawEd();return}
+      if(b.id=='phf'){if(FS.length<10){FS.push([{id:uid(),t:'k'}]);fi=FS.length-1;cur=FS[fi];drawEd()}return}
+      if(b.id=='pct'){if(isFull(cur)){cur=cur.filter(p=>p.t!='k');cur.forEach(p=>{if(p.t=='l'){p.y1=Math.min(p.y1,464);p.y2=Math.min(p.y2,464);if(p.pts)p.pts.forEach(q=>q[1]=Math.min(q[1],464))}else p.y=Math.min(p.y,464)});FS[fi]=cur}else cur.push({id:uid(),t:'k'});drawEd();return}
+      if(b.id=='phd'){FS.splice(fi,1);fi=Math.max(0,fi-1);cur=FS[fi];drawEd();return}
+      if(b.id=='exs'){exportItems(S.archive.filter(x=>SEL.has(x.id)),'basket-esercizi-selezionati.json');return}
+      if(b.id=='exn'){SEL.clear();render();return}
+      if(a=='fexp'){const f=b.dataset.f,F=xf();exportItems(S.archive.filter(x=>(x.cat||'Senza categoria')==f&&(!F||x.ts>=F.t)),'basket-'+f.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.json');return}
+      if(a=='fsel'){const f=b.dataset.f;S.archive.filter(x=>(x.cat||'Senza categoria')==f).forEach(x=>SEL.add(x.id));render();return}
+      if(b.id=='ex'){exportArc();return}
+      if(b.id=='im'){$('#fi').click();return}
+      if(b.id=='sd'){if(!S.meta.day)return toast('Scegli prima il giorno');S.days=S.days||{};const L=dp(S.meta.day),np={cat:S.meta.cat,total:S.meta.total,start:S.meta.start,end:S.meta.end,plan:copy(S.plan)};if(slot>0&&L[slot])L[slot]=np;else if(L.length)L[0]=np;else L.push(np);sdp(S.meta.day,L);CS=S.meta.day;cm=S.meta.day.slice(0,7);save();render();return toast('Piano salvato nel giorno')}
+      if(b.id=='pr'){printDoc();return}
+      if(b.id=='und'){cur.pop();return drawEd()}
+      if(b.id=='clr'){cur=[];return drawEd()}
+      if(b.id=='nw'){reset();return toast('Nuovo esercizio')}
+      if(b.id=='ok'){const x=ex();if(!x.name)return toast('Inserisci il nome dell\'esercizio');if(editIdx!=null){x.id=S.plan[editIdx].id;S.plan[editIdx]=x}else S.plan.push(x);save();reset();return toast('Esercizio confermato')}
+      if(b.id=='sa'){const x=ex();if(!x.name)return toast('Inserisci il nome dell\'esercizio');const k=S.archive.findIndex(y=>y.name.toLowerCase()==x.name.toLowerCase());if(k>=0)S.archive[k]=x;else S.archive.push(x);save();render();return toast('Salvato in archivio'+(x.cat?' · cartella '+x.cat:''))}
+      if(b.id=='rs'){if(!rsArm){rsArm=1;b.textContent='Sicuro? Tocca di nuovo';return}S.plan=[];slot=0;save();reset();return toast('Piano svuotato')}
+      if(a=='cprev'||a=='cnext'){const [y,m]=cm.split('-').map(Number),d=new Date(y,m-1+(a=='cnext'?1:-1),1);cm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');return render()}
+      if(a=='cday'){CS=b.dataset.k;return render()}
+      if(a=='cset'){S.meta.day=CS;slot=0;editIdx=null;save();init();return tab('ed')}
+      if(a=='ckeep'){PC={};return render()}
+      if(a=='cboth'){Object.keys(PC).forEach(k=>sdp(k,[...dp(k),...PC[k]]));PC={};save();toast('Piani salvati entrambi');return render()}
+      if(a=='crepl'){Object.keys(PC).forEach(k=>sdp(k,PC[k]));PC={};save();toast('Giorni sostituiti');return render()}
+      if(a=='cgo'){loadDay(0);return tab('plan')}
+      if(a=='copen'){loadDay(+b.dataset.j);return tab('plan')}
+      if(a=='crm'){const dy=CS||S.meta.day,L=dp(dy);L.splice(+b.dataset.j,1);sdp(dy,L);slot=0;save();return render()}
+      if(a=='cdel'){sdp(S.meta.day,dp(S.meta.day).slice(1));slot=0;save();return render()}
+      if(a=='edit')return loadEd(S.plan[i],i);
+      if(a=='up'&&i>0)[S.plan[i-1],S.plan[i]]=[S.plan[i],S.plan[i-1]];
+      if(a=='dn'&&i<S.plan.length-1)[S.plan[i+1],S.plan[i]]=[S.plan[i],S.plan[i+1]];
+      if(a=='rm'){S.plan.splice(i,1);if(editIdx!=null)editIdx=null}
+      if(a=='arc'){const x=copy(S.plan[i]);x.id=uid();x.ts=Date.now();const k=S.archive.findIndex(y=>y.name.toLowerCase()==x.name.toLowerCase());if(k>=0)S.archive[k]=x;else S.archive.push(x);toast('Salvato in archivio')}
+      if(a=='aadd'){const x=copy(S.archive[i]);x.id=uid();S.plan.push(x);toast('Aggiunto al piano')}
+      if(a=='aload')return loadEd(S.archive[i],null),editIdx=null,render();
+      if(a=='adel')S.archive.splice(i,1);
+      if(a){save();render()}
+    });
+
+    $('#day').oninput=e=>{S.meta.day=e.target.value;slot=0;CS=S.meta.day||null;cm=null;save();render()};
+    $('#cat').oninput=e=>{S.meta.cat=e.target.value;save();render()};
+    $('#tot').oninput=e=>{S.meta.total=+e.target.value||0;{const s=tmn(S.meta.start);if(s!=null&&S.meta.total>0){S.meta.end=fmt(s+S.meta.total);$('#tf').value=S.meta.end}}save();render()};
+    $('#du').oninput=stats;
+
+    let PC={},slot=0,FS=[[]],fi=0;
+    const SEL=new Set();
+    const isFull=P=>P.some(p=>p.t=='k'),filled=P=>P.some(p=>p.t!='k'),PH=()=>{const f=FS.filter(filled);return f.length?f:[FS[0]]};
+    const BALL=(a,k)=>`<g data-ball="${k}" transform="translate(${(24*Math.cos(a)).toFixed(1)} ${(24*Math.sin(a)).toFixed(1)})"><circle r="11" fill="transparent"/><circle r="7" fill="#f97316" stroke="#7c2d12" stroke-width="1.5"/><path d="M-7 0h14M0-7v14" stroke="#7c2d12"/></g>`;
+    const tmn=s=>{const m=/^(\d{1,2}):(\d{2})$/.exec(s||'');return m?(+m[1])*60+(+m[2]):null};
+    const fmt=n=>{n=((n%1440)+1440)%1440;return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
+    function sr(idx,d){const s=tmn(S.meta.start);if(s==null)return '';const off=(idx!=null?S.plan.slice(0,idx):S.plan).reduce((a,x)=>a+(+x.dur||0),0);return fmt(s+off)+'–'+fmt(s+off+d)}
+    const tm=i=>{const s=tmn(S.meta.start);if(s==null||!S.plan[i])return '';const off=S.plan.slice(0,i).reduce((a,x)=>a+(+x.dur||0),0);return fmt(s+off)+'–'+fmt(s+off+(+S.plan[i].dur||0))+' · '};
+    const hr=()=>{const s=tmn(S.meta.start),e=tmn(S.meta.end);return s==null?'':` (${S.meta.start}${e!=null?'–'+S.meta.end:''})`};
+    function hhUI(u){const s=tmn(S.meta.start),e=tmn(S.meta.end),h=$('#hh');if(s==null){h.textContent='';return}let t='Inizio '+fmt(s)+' · esercizi fino alle '+fmt(s+u);if(e!=null){t+=' · fine allenamento '+fmt(e);const L=(e-s+1440)%1440;if(u>L)t+=' · oltre di '+(u-L)+' min'}h.textContent=t}
+    function tSync(src){S.meta.start=$('#ti').value;S.meta.end=$('#tf').value;const s=tmn(S.meta.start),e=tmn(S.meta.end);if(s!=null&&e!=null){const d=(e-s+1440)%1440;S.meta.total=d;$('#tot').value=d}else if(src=='ti'&&s!=null&&(+S.meta.total||0)>0){S.meta.end=fmt(s+(+S.meta.total));$('#tf').value=S.meta.end}save();render()}
+    $('#ti').oninput=()=>tSync('ti');$('#tf').oninput=()=>tSync('tf');
+    
+    let MODE='ed';const ST={ed:null,fg:null};
+    function setMode(m){if(m==MODE)return;ST[MODE]={cur,FS,fi};MODE=m;const s=ST[m];if(s&&s.FS){cur=s.cur;FS=s.FS;fi=s.fi}else{cur=[];FS=[cur];fi=0}const g=m=='fg';$('#exf').style.display=g?'none':'';$('#fgp').classList.toggle('hid',!g);document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('on',x.dataset.mode==m));drawEd()}
+    function fgEx(){FS[fi]=cur;return{id:uid(),ts:Date.now(),cat:$('#fc').value.trim(),name:$('#fn').value.trim()||('Schema '+new Date().toLocaleDateString('it-IT')),dur:+$('#fm').value||0,desc:$('#fx').value.trim(),players:copy(PH()[0]),more:PH().slice(1).map(p=>copy(p))}}
+    function xf(){const d=$('#xd').value;return $('#xm').value=='since'&&d?{t:new Date(d+'T00:00').getTime(),d}:null}
+    function xUI(){const m=$('#xm').value=='since';$('#xd').classList.toggle('hid',!m);const F=xf(),h=$('#xh');if(!m){h.textContent=`Verrà inviato tutto l'archivio e tutto il calendario.`;return}if(!F){h.textContent='Scegli la data di partenza.';return}const n=S.archive.filter(x=>x.ts>=F.t).length,u=S.archive.filter(x=>!x.ts).length,g=Object.keys(S.days||{}).filter(k=>k>=F.d).length;h.textContent=`Dal ${F.d.split('-').reverse().join('/')}: ${n} esercizi e ${g} giorni del calendario.`+(u?` ${u} esercizi non datati non inclusi.`:'')}
+    $('#xm').onchange=$('#xd').onchange=$('#xd').oninput=xUI;
+    function selUI(){const n=S.archive.filter(x=>SEL.has(x.id)).length,b=$('#exs');b.textContent=`⬇ Esporta selezionati (${n})`;b.classList.toggle('hid',!n);$('#exn').classList.toggle('hid',!n)}
+    function exportItems(L,fn){if(!L.length)return toast('Niente da esportare');const u=URL.createObjectURL(new Blob([JSON.stringify({tipo:'archivio-basket',v:2,archive:L,days:{}},null,1)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('Esportazione pronta')}
+    document.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.sel;if(id){e.target.checked?SEL.add(id):SEL.delete(id);selUI()}});
+    const svgs=x=>{const A=[x.players,...(x.more||[])];return A.map((p,i)=>(A.length>1?`<div class="help" style="margin:8px 0 3px"><b>Fase ${i+1}${isFull(p)?' · campo intero':''}</b></div>`:'')+svg(p)).join('')};
+    function phHTML(){return FS.map((_,j)=>`<button class="sm${j==fi?' on':''}" data-ph="${j}">Fase ${j+1}${isFull(FS[j])?' · intero':''}</button>`).join('')+(FS.length>1&&fi>0?'<button class="sm" id="phl">◀ Sposta prima</button>':'')+(FS.length>1&&fi<FS.length-1?'<button class="sm" id="phr">Sposta dopo ▶</button>':'')+(FS.length<10?'<button class="sm" id="pha">➕ Aggiungi fase</button><button class="sm" id="phf">➕ Campo intero</button>':'')+'<button class="sm" id="pct">'+(isFull(cur)?'⬜ Passa a mezzo campo':'⬛ Passa a campo intero')+'</button>'+(FS.length>1?'<button class="sm" id="phd">🗑 Elimina fase</button>':'')}
+    const dp=k=>{const d=(S.days||{})[k];return d?[{cat:d.cat,total:d.total,start:d.start,end:d.end,plan:d.plan},...(d.more||[])]:[]};
+    const sdp=(k,L)=>{S.days=S.days||{};if(!L.length)delete S.days[k];else S.days[k]={...L[0],more:L.slice(1)}};
+    function loadDay(j){if(CS)S.meta.day=CS;const p=dp(S.meta.day)[j];if(!p)return;S.meta.cat=p.cat;S.meta.total=p.total;S.meta.start=p.start||'';S.meta.end=p.end||'';S.plan=copy(p.plan);slot=j;editIdx=null;save();init()}
+    function confHTML(){const k=Object.keys(PC);return k.length?`<div class="card"><div class="h"><b>${k.length} giorni già presenti con un piano diverso</b></div><div class="help">${k.join(', ')}</div><div class="btns"><button class="sm" data-a="ckeep">Tieni i miei</button><button class="sm" data-a="cboth">Salva entrambi i piani</button><button class="sm pri" data-a="crepl">Sostituisci con quelli importati</button></div></div>`:''}
+
+    load();
+  </script>
+</main>
+</body>
+</html>
